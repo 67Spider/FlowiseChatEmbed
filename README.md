@@ -26,6 +26,8 @@ yarn build
 
 ## Embed in your HTML
 
+### PopUp
+
 ```html
 <script type="module">
   import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js";
@@ -34,6 +36,30 @@ yarn build
     apiHost: "http://localhost:3000",
   });
 </script>
+```
+
+### FullPage
+
+```html
+<script type="module">
+  import Chatbot from "./web.js";
+  Chatbot.initFull({
+    chatflowid: "<chatflowid>",
+    apiHost: "http://localhost:3000",
+  });
+</script>
+<flowise-fullchatbot></flowise-fullchatbot>
+```
+
+To enable full screen, add `margin: 0` to <code>body</code> style
+
+```html
+<body style="margin: 0">
+  <script type="module">
+    import Chatbot from "./web.js";
+    ...
+  </script>
+</body>
 ```
 
 ## Configuration
@@ -46,6 +72,9 @@ You can also customize chatbot with different configuration
   Chatbot.init({
     chatflowid: "91e9c803-5169-4db9-8207-3c0915d71c5f",
     apiHost: "http://localhost:3000",
+    chatflowConfig: {
+      // topK: 2
+    },
     theme: {
       button: {
         backgroundColor: "#3B81F6",
@@ -61,6 +90,7 @@ You can also customize chatbot with different configuration
         backgroundColor: "#ffffff",
         height: 700,
         width: 400,
+        fontSize: 16,
         poweredByTextColor: "#303235",
         botMessage: {
           backgroundColor: "#f7f8ff",

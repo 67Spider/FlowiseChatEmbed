@@ -9,6 +9,7 @@ type Props = {
     textColor?: string
     sendButtonColor?: string
     defaultValue?: string
+    fontSize?: number
     onSubmit: (value: string) => void
 }
 
@@ -29,7 +30,9 @@ export const TextInput = (props: Props) => {
     }
 
     const submitWhenEnter = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') submit()
+        // Check if IME composition is in progress
+        const isIMEComposition = e.isComposing || e.keyCode === 229
+        if (e.key === 'Enter' && !isIMEComposition) submit()
     }
 
     onMount(() => {
@@ -38,12 +41,13 @@ export const TextInput = (props: Props) => {
 
     return (
         <div
-            class={'flex items-end justify-between pr-2 chatbot-input w-full'}
+            class={'flex items-end justify-between chatbot-input'}
             data-testid='input'
             style={{
                 'border-top': '1px solid #eeeeee',
-                width: '90%',
                 position: 'absolute',
+                left: '20px',
+                right: '20px',
                 bottom: '40px',
                 margin: 'auto',
                 "z-index": 1000,
@@ -56,6 +60,7 @@ export const TextInput = (props: Props) => {
                 ref={inputRef as HTMLInputElement}
                 onInput={handleInput}
                 value={inputValue()}
+                fontSize={props.fontSize}
                 placeholder={props.placeholder ?? 'Type your question'}
             />
             <SendButton sendButtonColor={props.sendButtonColor} type='button' isDisabled={inputValue() === ''} class='my-2 ml-2' on:click={submit}>

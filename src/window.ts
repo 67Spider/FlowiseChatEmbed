@@ -2,6 +2,15 @@
 type BotProps = {
     chatflowid: string
     apiHost?: string
+    chatflowConfig?: Record<string, unknown>
+}
+
+export const initFull = (props: BotProps & { id?: string }) => {
+    const fullElement = props.id
+      ? document.getElementById(props.id)
+      : document.querySelector('flowise-fullchatbot')
+    if (!fullElement) throw new Error('<flowise-fullchatbot> element not found.')
+    Object.assign(fullElement, props)
 }
 
 export const init = (props: BotProps) => {
@@ -11,6 +20,7 @@ export const init = (props: BotProps) => {
 }
 
 type Chatbot = {
+    initFull: typeof initFull
     init: typeof init
 }
 
@@ -21,6 +31,7 @@ declare const window:
     | undefined
 
 export const parseChatbot = () => ({
+    initFull,
     init
 })
 

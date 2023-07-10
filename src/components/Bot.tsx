@@ -1,5 +1,5 @@
 import { createSignal, createEffect, For, onMount } from 'solid-js'
-import { sendMessageQuery, isStreamAvailableQuery } from '@/queries/sendMessageQuery'
+import { sendMessageQuery, isStreamAvailableQuery, IncomingInput } from '@/queries/sendMessageQuery'
 import { TextInput } from './inputs/textInput'
 import { GuestBubble } from './bubbles/GuestBubble'
 import { BotBubble } from './bubbles/BotBubble'
@@ -21,12 +21,14 @@ export type MessageType = {
 export type BotProps = {
     chatflowid: string
     apiHost?: string
+    chatflowConfig?: Record<string, unknown>
     welcomeMessage?: string
     botMessage?: BotMessageTheme
     userMessage?: UserMessageTheme
     textInput?: TextInputTheme
     poweredByTextColor?: string
     badgeBackgroundColor?: string
+    fontSize?: number
 }
 
 const defaultWelcomeMessage = 'Hi there! How can I help?'
@@ -184,10 +186,12 @@ export const Bot = (props: BotProps & { class?: string }) => {
         scrollToBottom()
 
         // Send user question and history to API
-        const body: any = {
+        const body: IncomingInput = {
             question: value,
             history: messages().filter((msg) => msg.message !== props.welcomeMessage ?? defaultWelcomeMessage)
         }
+
+        if (props.chatflowConfig) body.overrideConfig = props.chatflowConfig
 
         if (isChatFlowAvailableToStream()) body.socketIOClientId = socketIOClientId()
 
@@ -224,6 +228,10 @@ export const Bot = (props: BotProps & { class?: string }) => {
     // Auto scroll chat to bottom
     createEffect(() => {
         if (messages()) scrollToBottom()
+    })
+
+    createEffect(() => {
+        if (props.fontSize && botContainer) botContainer.style.fontSize = `${props.fontSize}px`
     })
 
     // eslint-disable-next-line solid/reactivity
@@ -272,7 +280,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
         <>
             <div ref={botContainer} class={'relative flex w-full h-full text-base overflow-hidden bg-cover bg-center flex-col items-center chatbot-container ' + props.class}>
                 <div class="flex w-full h-full justify-center">
-                    <div style={{ "padding-bottom": '100px' }} ref={chatContainer} class="overflow-y-scroll w-full min-h-full px-3 pt-10 relative scrollable-container chatbot-chat-view scroll-smooth">
+                    <div style={{ "padding-bottom": '100px' }} ref={chatContainer} class="overflow-y-scroll min-w-full w-full min-h-full px-3 pt-10 relative scrollable-container chatbot-chat-view scroll-smooth">
                         <For each={[...messages()]}>
                             {(message, index) => (
                                 <>
@@ -321,6 +329,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                         textColor={props.textInput?.textColor}
                         placeholder={props.textInput?.placeholder}
                         sendButtonColor={props.textInput?.sendButtonColor}
+                        fontSize={props.fontSize}
                         defaultValue={userInput()}
                         onSubmit={handleSubmit}
                     />
